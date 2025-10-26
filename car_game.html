@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FXGAMERHQ Car Game</title>
+<style>
+body { margin:0; overflow:hidden; background:#111; touch-action:none; }
+canvas { display:block; }
+#channel { position:fixed; top:8px; right:16px; color:#00ffff; font-size:20px; font-family:"Arial Black",sans-serif; text-shadow:2px 2px 5px #000; z-index:5; }
+.btn { position:fixed; bottom:25px; width:80px; height:80px; font-size:36px; color:white; background:rgba(255,255,255,0.2); border:2px solid #fff; border-radius:50%; user-select:none; z-index:10; }
+#left { left:25px; } #right { right:25px; }
+@media (pointer: fine) { .btn { display:none; } }
+</style>
+</head>
+<body>
+<div id="channel">FXGAMERHQ</div>
+<button id="left" class="btn">◀</button>
+<button id="right" class="btn">▶</button>
+
+<script>
+const canvas=document.createElement("canvas"); document.body.appendChild(canvas);
+const ctx=canvas.getContext("2d");
+let keys={}, car={x:0,y:0,w:45,h:90,speed:6}, others=[], coins=[], score=0, road={x:0,width:320};
+function resize(){canvas.width=innerWidth; canvas.height=innerHeight; road.x=canvas.width/2-road.width/2; car.x=canvas.width/2-car.w/2; car.y=canvas.height-140;}
+window.addEventListener("resize",resize); resize();
+
+// touch buttons
+const leftBtn=document.getElementById("left"); const rightBtn=document.getElementById("right");
+leftBtn.ontouchstart=()=>keys.left=true; leftBtn.ontouchend=()=>keys.left=false;
+rightBtn.ontouchstart=()=>keys.right=true; rightBtn.ontouchend=()=>keys.right=false;
+
+// keyboard
+window.onkeydown=e=>{if(e.key==="ArrowLeft") keys.left=true; if(e.key==="ArrowRight") keys.right=true;}
+window.onkeyup=e=>{if(e.key==="ArrowLeft") keys.left=false; if(e.key==="ArrowRight") keys.right=false;}
+
+// spawn opposite cars
+function spawnOther(){ const colors=["#ff3333","#33cc33","#3399ff","#ffcc00","#ff66cc"];
+const c=colors[Math.floor(Math.random()*colors.length)];
+const shapes=[{w:40,h:85},{w:50,h:90},{w:60,h:95}]; const s=shapes[Math.floor(Math.random()*shapes.length)];
+others.push({x:road.x+20+Math.random()*(road.width-70), y:-120, w:s.w, h:s.h, color:c, speed:4+Math.random()*2});}
+function spawnCoin(){ coins.push({x:road.x+30+Math.random()*(road.width-60), y:-30, r:12, speed:3});}
+setInterval(spawnOther,1700); setInterval(spawnCoin,1500);
+
+function update(){ if(keys.left) car.x-=car.speed; if(keys.right) car.x+=car.speed;
+car.x=Math.max(road.x+10, Math.min(road.x+road.width-car.w-10, car.x));
+others.forEach(o=>o.y+=o.speed); coins.forEach(c=>c.y+=c.speed);
+others=others.filter(o=>o.y<canvas.height+100); coins=coins.filter(c=>c.y<canvas.height+40);
+
+// collect coins
+for(let i=coins.length-1;i>=0;i--){ let c=coins[i];
+if(c.x>car.x-5 && c.x<car.x+car.w && c.y>car.y-5 && c.y<car.y+car.h){ coins.splice(i,1); score++; }}
+
+// crash detection
+for(let o of others){ if(car.x<o.x+o.w && car.x+car.w>o.x && car.y<o.y+o.h && car.y+car.h>o.y){
+alert("💥 Game Over! Score: "+score); document.location.reload(); }}
+}
+
+function drawRoad(){ ctx.fillStyle="#222"; ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle="#555"; ctx.fillRect(road.x,0,road.width,canvas.height);
+ctx.strokeStyle="#fff"; ctx.setLineDash([30,30]); ctx.lineWidth=4;
+ctx.beginPath(); ctx.moveTo(canvas.width/2,0); ctx.lineTo(canvas.width/2,canvas.height); ctx.stroke();
+ctx.setLineDash([]);}
+function drawCar(){ ctx.fillStyle="#ff2222"; ctx.fillRect(car.x,car.y,car.w,car.h);
+ctx.fillStyle="#000"; ctx.fillRect(car.x+6,car.y+10,car.w-12,car.h/3);
+ctx.fillRect(car.x-4,car.y+12,6,20); ctx.fillRect(car.x+car.w-2,car.y+12,6,20);
+ctx.fillRect(car.x-4,car.y+car.h-32,6,20); ctx.fillRect(car.x+car.w-2,car.y+car.h-32,6,20);}
+function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); drawRoad(); drawCar();
+others.forEach(o=>{ ctx.fillStyle=o.color; ctx.fillRect(o.x,o.y,o.w,o.h); ctx.fillStyle="#111"; ctx.fillRect(o.x+8,o.y+10,o.w-16,o.h/3); });
+ctx.fillStyle="yellow"; coins.forEach(c=>{ ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill(); });
+ctx.fillStyle="#fff"; ctx.font="22px Arial"; ctx.fillText("Score: "+score,20,30);}
+function loop(){ update(); draw(); requestAnimationFrame(loop); } loop();
+</script>
+</body>
+</html> 
+    const canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    let keys = {};
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+
+    // Touch controls
+    leftBtn.addEventListener("touchstart",()=>{keys["ArrowLeft"]=true});
+    leftBtn.addEventListener("touchend",()=>{keys["ArrowLeft"]=false});
+    rightBtn.addEventListener("touchstart",()=>{keys["ArrowRight"]=true});
+    rightBtn.addEventListener("touchend",()=>{keys["ArrowRight"]=false});
+
+    // Keyboard controls
+    window.addEventListener("keydown",(e)=>{keys[e.key]=true;});
+    window.addEventListener("keyup",(e)=>{keys[e.key]=false;});
+
+    let road = {x: 0, width: 300};
+    let car = {x: 0, y: 0, w: 60, h: 100, speed: 6};
+    let otherCars = [];
+    let coins = [];
+    let score = 0;
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      road.x = canvas.width/2 - 150;
+      car.x = canvas.width/2 - 30;
+      car.y = canvas.height - 150;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function spawnOtherCar(){
+      const laneX = road.x + 20 + Math.random()*(road.width-80);
+      otherCars.push({x: laneX, y:-120, w:60, h:100, speed:4+Math.random()*2});
+    }
+
+    function spawnCoin(){
+      const laneX = road.x + 40 + Math.random()*(road.width-80);
+      coins.push({x: laneX, y:-30, r:15, speed:3});
+    }
+
+    setInterval(spawnOtherCar, 1800);
+    setInterval(spawnCoin, 1500);
+
+    function update(){
+      if(keys["ArrowLeft"]) car.x -= car.speed;
+      if(keys["ArrowRight"]) car.x += car.speed;
+
+      const minX = road.x + 10;
+      const maxX = road.x + road.width - car.w - 10;
+      car.x = Math.max(minX, Math.min(maxX, car.x));
+
+      otherCars.forEach(c=>c.y+=c.speed);
+      coins.forEach(c=>c.y+=c.speed);
+
+      otherCars = otherCars.filter(c=>c.y<canvas.height+100);
+      coins = coins.filter(c=>c.y<canvas.height+30);
+
+      // Coin collect
+      for(let i=coins.length-1;i>=0;i--){
+        let c=coins[i];
+        if(c.x>car.x-10 && c.x<car.x+car.w && c.y>car.y-10 && c.y<car.y+car.h){
+          coins.splice(i,1);
+          score++;
+        }
+      }
+
+      // Collision with other cars
+      for(let c of otherCars){
+        if(car.x < c.x + c.w && car.x + car.w > c.x && car.y < c.y + c.h && car.y + car.h > c.y){
+          alert("💥 Game Over!  Score: "+score);
+          document.location.reload();
+        }
+      }
+    }
+
+    function drawRoad(){
+      ctx.fillStyle="#444";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle="#555";
+      ctx.fillRect(road.x,0,road.width,canvas.height);
+      ctx.strokeStyle="#fff";
+      ctx.setLineDash([30,30]);
+      ctx.lineWidth=4;
+      ctx.beginPath();
+      ctx.moveTo(canvas.width/2,0);
+      ctx.lineTo(canvas.width/2,canvas.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawCar(){
+      // 2D Car look with gradient
+      const grad = ctx.createLinearGradient(car.x, car.y, car.x, car.y+car.h);
+      grad.addColorStop(0,"#ff0000");
+      grad.addColorStop(1,"#990000");
+      ctx.fillStyle = grad;
+      ctx.fillRect(car.x, car.y, car.w, car.h);
+
+      // Windows
+      ctx.fillStyle="#222";
+      ctx.fillRect(car.x+10,car.y+10,car.w-20,car.h/3);
+      // Wheels
+      ctx.fillStyle="#000";
+      ctx.fillRect(car.x-8,car.y+10,10,25);
+      ctx.fillRect(car.x+car.w-2,car.y+10,10,25);
+      ctx.fillRect(car.x-8,car.y+car.h-35,10,25);
+      ctx.fillRect(car.x+car.w-2,car.y+car.h-35,10,25);
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawRoad();
+      drawCar();
+
+      // Other cars
+      ctx.fillStyle="limegreen";
+      otherCars.forEach(c=>{
+        ctx.fillRect(c.x,c.y,c.w,c.h);
+        ctx.fillStyle="#111";
+        ctx.fillRect(c.x+10,c.y+10,c.w-20,c.h/3);
+        ctx.fillStyle="limegreen";
+      });
+
+      // Coins
+      ctx.fillStyle="yellow";
+      coins.forEach(c=>{
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle="orange";
+        ctx.lineWidth=2;
+        ctx.stroke();
+      });
+
+      // Score
+      ctx.fillStyle="white";
+      ctx.font="24px Arial";
+      ctx.fillText("Score: "+score,20,30);
+    }
+
+    function loop(){
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html> 
+    const canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    let keys = {};
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+
+    // Touch controls
+    leftBtn.addEventListener("touchstart",()=>{keys["ArrowLeft"]=true});
+    leftBtn.addEventListener("touchend",()=>{keys["ArrowLeft"]=false});
+    rightBtn.addEventListener("touchstart",()=>{keys["ArrowRight"]=true});
+    rightBtn.addEventListener("touchend",()=>{keys["ArrowRight"]=false});
+
+    // Keyboard controls
+    window.addEventListener("keydown",(e)=>{keys[e.key]=true;});
+    window.addEventListener("keyup",(e)=>{keys[e.key]=false;});
+
+    let car = {x: window.innerWidth/2-25, y: window.innerHeight-120, w: 50, h: 90, speed: 6};
+    let otherCars = [];
+    let coins = [];
+    let score = 0;
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function spawnOtherCar(){
+      otherCars.push({x: Math.random()*(canvas.width-50), y:-100, w:50, h:90, speed:4+Math.random()*2});
+    }
+
+    function spawnCoin(){
+      coins.push({x: Math.random()*(canvas.width-30), y:-30, r:15, speed:3});
+    }
+
+    setInterval(spawnOtherCar, 2000);
+    setInterval(spawnCoin, 1500);
+
+    function update(){
+      if(keys["ArrowLeft"]) car.x -= car.speed;
+      if(keys["ArrowRight"]) car.x += car.speed;
+
+      car.x = Math.max(0, Math.min(canvas.width-car.w, car.x));
+
+      otherCars.forEach(c=>c.y+=c.speed);
+      coins.forEach(c=>c.y+=c.speed);
+
+      otherCars = otherCars.filter(c=>c.y<canvas.height+100);
+      coins = coins.filter(c=>c.y<canvas.height+30);
+
+      // Collision with coins
+      for(let i=coins.length-1;i>=0;i--){
+        let c=coins[i];
+        if(c.x>car.x-10 && c.x<car.x+car.w && c.y>car.y-10 && c.y<car.y+car.h){
+          coins.splice(i,1);
+          score++;
+        }
+      }
+
+      // Collision with other cars
+      for(let c of otherCars){
+        if(car.x < c.x + c.w && car.x + car.w > c.x && car.y < c.y + c.h && car.y + car.h > c.y){
+          alert("Game Over! Score: "+score);
+          document.location.reload();
+        }
+      }
+    }
+
+    function drawRoad(){
+      ctx.fillStyle="#444";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle="#666";
+      ctx.fillRect(canvas.width/2-100,0,200,canvas.height);
+      ctx.strokeStyle="#fff";
+      ctx.setLineDash([20,20]);
+      ctx.lineWidth=4;
+      ctx.beginPath();
+      ctx.moveTo(canvas.width/2,0);
+      ctx.lineTo(canvas.width/2,canvas.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawRoad();
+
+      // Car
+      ctx.fillStyle="red";
+      ctx.fillRect(car.x, car.y, car.w, car.h);
+
+      // Other cars
+      ctx.fillStyle="lime";
+      otherCars.forEach(c=>ctx.fillRect(c.x,c.y,c.w,c.h));
+
+      // Coins
+      ctx.fillStyle="yellow";
+      coins.forEach(c=>{
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+        ctx.fill();
+      });
+
+      // Score
+      ctx.fillStyle="white";
+      ctx.font="24px Arial";
+      ctx.fillText("Score: "+score,20,30);
+    }
+
+    function loop(){
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html> 
+const carCanvas=document.createElement('canvas');
+carCanvas.width=64; carCanvas.height=128;
+const ctx=carCanvas.getContext('2d');
+// draw simple 2D car
+ctx.fillStyle="red"; ctx.fillRect(16,32,32,64); // body
+ctx.fillStyle="black"; ctx.fillRect(20,40,8,16); // left window
+ctx.fillRect(36,40,8,16); // right window
+ctx.fillStyle="gray"; ctx.fillRect(16,96,12,8); // left wheel
+ctx.fillRect(36,96,12,8); // right wheel
+const carTex=new THREE.CanvasTexture(carCanvas);
+const carMat=new THREE.MeshBasicMaterial({map:carTex,transparent:true});
+const carGeo=new THREE.PlaneGeometry(1,2);
+const car=new THREE.Mesh(carGeo,carMat);
+car.position.set(0,1,4);
+scene.add(car);
+
+// OTHER CARS (green boxes)
+const otherCars=[];
+for(let i=0;i<6;i++){
+  const geo=new THREE.BoxGeometry(1,0.5,2);
+  const mat=new THREE.MeshPhongMaterial({color:0x00ff00});
+  const oCar=new THREE.Mesh(geo,mat);
+  oCar.position.set((Math.random()<0.5?-2:2),0.25,-i*15);
+  scene.add(oCar); otherCars.push(oCar);
+}
+
+// COINS
+const coins=[];
+const coinGeo=new THREE.TorusGeometry(0.3,0.1,8,16);
+const coinMat=new THREE.MeshPhongMaterial({color:0xffff00});
+for(let i=0;i<10;i++){
+  const coin=new THREE.Mesh(coinGeo,coinMat);
+  coin.position.set((Math.random()-0.5)*6,0.5,-i*12-10);
+  coins.push(coin); scene.add(coin);
+}
+
+// CAMERA
+camera.position.set(0,3,8); camera.lookAt(0,0,0);
+
+// CONTROLS
+const keys={};
+window.addEventListener("keydown",e=>keys[e.key]=true);
+window.addEventListener("keyup",e=>keys[e.key]=false);
+
+let speed=0.3, score=0;
+
+function animate(){
+  requestAnimationFrame(animate);
+  if(keys["ArrowLeft"] && car.position.x>-3) car.position.x-=0.1;
+  if(keys["ArrowRight"] && car.position.x<3) car.position.x+=0.1;
+
+  road.position.z+=speed;
+  buildings.forEach(b=>{b.position.z+=speed;if(b.position.z>10)b.position.z=-200;});
+  otherCars.forEach(o=>{
+    o.position.z+=speed*1.2;
+    if(o.position.z>10){o.position.z=-100-Math.random()*50; o.position.x=(Math.random()<0.5?-2:2);}
+    if(Math.abs(o.position.x-car.position.x)<1 && Math.abs(o.position.z-car.position.z)<1.5){
+      alert("💥 Crash! Game Over\nScore: "+score); location.reload();
+    }
+  });
+
+  coins.forEach(c=>{
+    c.position.z+=speed; c.rotation.y+=0.1;
+    if(c.position.z>10){c.position.z=-100-Math.random()*50; c.position.x=(Math.random()-0.5)*6;}
+    if(Math.abs(c.position.x-car.position.x)<1 && Math.abs(c.position.z-car.position.z)<1){
+      c.position.z=-100-Math.random()*50; score+=10;
+      document.getElementById("score").innerText="Score: "+score;
+    }
+  });
+
+  renderer.render(scene,camera);
+}
+
+animate();
+
+window.addEventListener("resize",()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+</script>
+</body>
+</html>
